@@ -1,2 +1,2 @@
 # CreditCardFraud
-Machine Learning using kaggle credit card fraud dataset. 
+Machine Learning using credit card fraud dataset. 
