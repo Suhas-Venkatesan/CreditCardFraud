@@ -10,9 +10,13 @@ from sklearn.utils import resample
 
 data = pd.read_csv('creditcard.csv')
 
+# Make the dataframe 1/10 the size for faster computation
+data = data.sample(frac=0.1)
+
 # Separate input features and class (outcome)
 y = data.Class
 X = data.drop('Class', axis=1)
+
 
 # The data must be split into training and testing sets before resampling to avoid the chance that
 # resampling causes duplicated data points in the training sets which will skew the precision
@@ -26,6 +30,10 @@ X = pd.concat([X_train, y_train], axis=1)
 not_fraud = X[X.Class == 0]
 fraud = X[X.Class == 1]
 
+# percentage of data points that are fraud
+outlier_fraction = len(fraud) / float(len(not_fraud))
+
+
 # upsample minority (essentially choosing random minority instances to duplicate)
 fraud_upsampled = resample(fraud, replace=True, n_samples=len(not_fraud), random_state=27)
 
@@ -36,9 +44,7 @@ upsampled = pd.concat([not_fraud, fraud_upsampled])
 print(upsampled.Class.value_counts())
 
 # There are now an equal number of instances of fraud and no fraud in the training set
-# 1    213245
-# 0    213245
-# Name: Class, dtype: int64
+
 
 # Next, I will undersample the majority class. This is not as effective because it simply
 # randomly removes instances of the majority class, which will remove important information
@@ -47,12 +53,10 @@ print(upsampled.Class.value_counts())
 # under sample majority
 not_fraud_downsampled = resample(not_fraud, replace=False, n_samples=len(fraud), random_state=27)
 downsampled = pd.concat([not_fraud_downsampled, fraud])
-
+downsampled_outlier_fraction = .5
 print(downsampled.Class.value_counts())
 
-# 1    360
-# 0    360
-# Name: Class, dtype: int64
+
 
 """A third method I will be trying is SMOTE, or synthetic minority oversampling technique. 
 It essentially synthesizes new instances of the minority class rather than duplicating instances
@@ -79,5 +83,7 @@ print("After OverSampling, counts of label '0': {}".format(sum(y_train == 0)))
 After OverSampling, counts of label '1': 213245
 After OverSampling, counts of label '0': 213245
 """
+
+
 
 
